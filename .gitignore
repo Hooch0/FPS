@@ -1,0 +1,7 @@
+.vscode/settings.json
+Temp/UnityLockfile
+UIElementsSchema/UIElements.xsd
+UIElementsSchema/UnityEditor.PackageManager.UI.xsd
+UIElementsSchema/UnityEditor.UIElements.Debugger.xsd
+UIElementsSchema/UnityEditor.UIElements.xsd
+UIElementsSchema/UnityEngine.UIElements.xsd
