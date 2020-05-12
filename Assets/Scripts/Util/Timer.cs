@@ -3,28 +3,40 @@
 [Serializable]
 public class Timer
 {
-    private float _goal;
+    public float Elapsed { get; private set; }
 
-    private float _t = 0;
+    public float Goal { get; private set; }
+
     private bool _started = false;
 
     private Action _finished;
 
     public Timer(float goal, Action finshedCallback)
     {
-       _goal = goal;
+       Goal = goal;
        _finished = finshedCallback;
+    }
+
+    public void SetGoal(float goal)
+    {
+        Goal = goal;
+    }
+
+    public void SetElapsedTime(float elapsed)
+    {
+        Elapsed = elapsed;
     }
 
     public void Update(float deltaTime)
     {
         if (_started == true)
         {
-            _t += deltaTime;
+            Elapsed += deltaTime;
         }
 
-        if (_t >= _goal)
+        if (Elapsed >= Goal)
         {
+            Elapsed = Goal;
             _finished?.Invoke();
         }
     }
@@ -37,7 +49,7 @@ public class Timer
     public void Stop()
     {
         _started = false;
-        _t = 0;
+        Elapsed = 0;
     }
 
     public void Pause()

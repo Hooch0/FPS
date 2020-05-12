@@ -48,7 +48,6 @@ public class UIManager : MonoBehaviour
         {
             CurrentAmmo.text = inventory.CurrentWeapon.CurrentAmmo.ToString();
             ReserveAmmo.text = inventory.Ammo.GetAmmo(inventory.CurrentWeapon.Data.AmmoType).CurrentReserveAmmo.ToString();
-            Debug.Log(inventory.Ammo.GetAmmo(inventory.CurrentWeapon.Data.AmmoType).CurrentReserveAmmo + " | " + inventory.Ammo.GetAmmo(inventory.CurrentWeapon.Data.AmmoType).MaxAmmo);
         }
         else
         {

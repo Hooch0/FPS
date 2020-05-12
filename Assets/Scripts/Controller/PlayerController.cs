@@ -10,12 +10,15 @@ public class PlayerController : MonoBehaviour
     public const bool IS_DEBUG = true;
     public Action<string> PlayerInteractable { get; set; }
 
+    public bool IsGrounded { get { return GroundCheck(); } }
+    public bool IsAimingDownSight { get; private set; }
+
+
     public Transform CameraContainer;
     public Transform Model;
     public LayerMask CharacterLayer;
     public CharacterController Character;
 
-    public bool IsGrounded {    get { return GroundCheck(); } }
 
     [Header("Movment")]
     public float Speed = 6f;
@@ -35,19 +38,25 @@ public class PlayerController : MonoBehaviour
     public float Distance = 1.5f;
     public LayerMask InteractionLayer;
 
+    [Header("Aim Transition")]
+    public float AimTransitionTime;
+    public Transform HipPosition;
+    public Transform AimDownSightsPosition;
+
+
     [Header("Inventory")]
     public Inventory inventory;
-    public GameObject HipPosition;
-    public GameObject AimDownSightsPosition;
+    
     public List<ReserveAmmo> StartingAmmo = new List<ReserveAmmo>();
 
-
+    private bool _isTransitioning = false;
     private Vector3 _yawEuler;
     private Vector3 _pitchEuler;
     private Color _groundCheckColor = Color.magenta;
+    
 
     private Vector3 _velocity;
-
+    private Timer _aimTransitionTimer;
     private Func<int,bool> _shootInput;
 
     private void OnEnable()
@@ -66,6 +75,7 @@ public class PlayerController : MonoBehaviour
         inventory.Initialize(this);
         inventory.Ammo.SetStartingAmmo(StartingAmmo);
         inventory.WeaponChanged += OnWeaponChanged;
+        _aimTransitionTimer = new Timer(AimTransitionTime, null);
     }
 
     private void Update()
@@ -73,6 +83,44 @@ public class PlayerController : MonoBehaviour
         PlayerInput();
         PlayerInteraction();
         GroundCheck();
+        AimTransitionUpdate();
+
+        _aimTransitionTimer.Update(Time.deltaTime);
+    }
+
+    private void AimTransitionUpdate()
+    {
+        if (_isTransitioning == true)
+        {
+            _aimTransitionTimer.Start();
+
+            if (IsAimingDownSight == true)
+            {
+                //tranisiton to aming down sight position.
+                inventory.CurrentWeapon.transform.position = Vector3.Lerp (HipPosition.position, AimDownSightsPosition.position,_aimTransitionTimer.Elapsed / _aimTransitionTimer.Goal);
+
+                //Lerp (Linear-interpolation)
+                //Percentage of A and B [0-1] over time of t
+                //Exmaple: 
+                //A = 0
+                //B = 10
+                //t = 0.5f
+                //Result = 5
+            
+            }
+            else
+            {
+                //transition to hip position.
+                inventory.CurrentWeapon.transform.position = Vector3.Lerp (AimDownSightsPosition.position, HipPosition.position,_aimTransitionTimer.Elapsed / _aimTransitionTimer.Goal);
+            }
+
+            if (_aimTransitionTimer.Elapsed == _aimTransitionTimer.Goal)
+            {
+                _isTransitioning = false;
+                _aimTransitionTimer.Stop();
+            }
+        }
+
     }
 
     private void PlayerInput()
@@ -172,12 +220,12 @@ public class PlayerController : MonoBehaviour
         //ADS Defualting to HOLD for now...
         if (Input.GetMouseButtonDown(1))
         {
-            
+            ChangeWeaponPosition();
         }
 
         if (Input.GetMouseButtonUp(1))
         {
-
+            ChangeWeaponPosition();
         }
     }
 
@@ -226,6 +274,26 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void ChangeWeaponPosition()
+    {
+        if (inventory.CurrentWeapon == null)
+        {
+            IsAimingDownSight = false;
+            return;
+        }
+
+        IsAimingDownSight = !IsAimingDownSight;
+
+        if (_isTransitioning == true)
+        {
+            _aimTransitionTimer.SetElapsedTime(_aimTransitionTimer.Goal - _aimTransitionTimer.Elapsed);
+            _aimTransitionTimer.Pause();
+        }
+
+        _isTransitioning = true;
+
+    }
+
     private float ClampXAngle(float eulerX)
     {
         float x = eulerX;
@@ -250,7 +318,19 @@ public class PlayerController : MonoBehaviour
         return x;
     }
 
-    private void OnDrawGizmos()
+    private void OnWeaponChanged()
+    {
+        if (inventory.CurrentWeapon.Data.WeaponFireType == 0)
+        {
+            _shootInput = Input.GetMouseButton;
+        }
+        else 
+        {
+            _shootInput = Input.GetMouseButtonDown;
+        }
+    }
+
+        private void OnDrawGizmos()
     {
         if (IS_DEBUG == true)
         {
@@ -266,15 +346,4 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnWeaponChanged()
-    {
-        if (inventory.CurrentWeapon.Data.WeaponFireType == 0)
-        {
-            _shootInput = Input.GetMouseButton;
-        }
-        else 
-        {
-            _shootInput = Input.GetMouseButtonDown;
-        }
-    }
 }
