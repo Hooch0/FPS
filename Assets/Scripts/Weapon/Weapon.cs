@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour, IInteractable
 {
+    public const int RAY_MAX_RANGE = 50000;
+
     public bool IsReloading { get; private set; }
     public bool IsShooting { get; private set; }
 
@@ -19,7 +21,6 @@ public class Weapon : MonoBehaviour, IInteractable
     public Rigidbody WeaponRigidbody;
 
     private PlayerController _player;
-
 
     private Timer _shootDelay;
     private Timer _reloadDelay;
@@ -121,7 +122,22 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private void HitScan()
     {
-        
+        Ray ray = _player.GetHitScanRay();
+        RaycastHit hit;
+
+        //we could do raycast all and filter out the current user.
+        //or we could just use raycast for now and change later if needed.
+        if (Physics.Raycast(ray, out hit, RAY_MAX_RANGE))
+        {
+            Debug.Log("Shot: " + hit.transform.name);
+            //Apply a offset 
+
+
+            BulletHoleManager.Instance.PlaceBulletHole(hit.transform.parent, hit.point + hit.normal * 0.01f, Quaternion.LookRotation( -hit.normal));
+
+        }
+
+
     }
 
 }

@@ -59,6 +59,7 @@ public class PlayerController : MonoBehaviour
     private Timer _aimTransitionTimer;
     private Func<int,bool> _shootInput;
 
+
     private void OnEnable()
     {
         if (Instance != null)
@@ -220,12 +221,12 @@ public class PlayerController : MonoBehaviour
         //ADS Defualting to HOLD for now...
         if (Input.GetMouseButtonDown(1))
         {
-            ChangeWeaponPosition();
+            ChangeToADSPositon();
         }
 
         if (Input.GetMouseButtonUp(1))
         {
-            ChangeWeaponPosition();
+            ChangeToHipPostion();
         }
     }
 
@@ -274,7 +275,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ChangeWeaponPosition()
+    private void ChangeToADSPositon()
     {
         if (inventory.CurrentWeapon == null)
         {
@@ -282,7 +283,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        IsAimingDownSight = !IsAimingDownSight;
+        IsAimingDownSight = true;
 
         if (_isTransitioning == true)
         {
@@ -291,7 +292,24 @@ public class PlayerController : MonoBehaviour
         }
 
         _isTransitioning = true;
+    }
 
+    private void ChangeToHipPostion()
+    {
+        if (IsAimingDownSight == false)
+        {
+            return;
+        }
+
+        IsAimingDownSight = false;
+
+        if (_isTransitioning == true)
+        {
+            _aimTransitionTimer.SetElapsedTime(_aimTransitionTimer.Goal - _aimTransitionTimer.Elapsed);
+            _aimTransitionTimer.Pause();
+        }
+
+        _isTransitioning = true;
     }
 
     private float ClampXAngle(float eulerX)
@@ -328,9 +346,24 @@ public class PlayerController : MonoBehaviour
         {
             _shootInput = Input.GetMouseButtonDown;
         }
+
+        _isTransitioning = false;
+        _aimTransitionTimer.Stop();
+        IsAimingDownSight = false;
+        inventory.CurrentWeapon.transform.position = HipPosition.position;
     }
 
-        private void OnDrawGizmos()
+    public void ChangePlayerRotation(Vector3 euler)
+    {
+        
+    }
+
+    public Ray GetHitScanRay()
+    {
+        return Camera.main.ViewportPointToRay(new Vector3(0.5f,0.5f,0));
+    }
+
+    private void OnDrawGizmos()
     {
         if (IS_DEBUG == true)
         {
