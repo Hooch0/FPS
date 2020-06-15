@@ -1,0 +1,11 @@
+.vs/
+.vscode/
+Temp/
+/Library/
+Library/
+/Library
+Library
+obj/
+Logs/
+Packages/
+UIElementsSchema/
