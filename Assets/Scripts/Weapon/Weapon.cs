@@ -129,12 +129,16 @@ public class Weapon : MonoBehaviour, IInteractable
         //or we could just use raycast for now and change later if needed.
         if (Physics.Raycast(ray, out hit, RAY_MAX_RANGE))
         {
-            Debug.Log("Shot: " + hit.transform.name);
-            //Apply a offset 
-
-
+            //Bullet holes. nuff said
             BulletHoleManager.Instance.PlaceBulletHole(hit.transform.parent, hit.point + hit.normal * 0.01f, Quaternion.LookRotation( -hit.normal));
 
+
+            IDamageable target = hit.transform.GetComponent<IDamageable>();
+
+            if (target?.Equals(null) == false)
+            {
+                target.TakeDamage(Data.Damage);
+            }
         }
 
 

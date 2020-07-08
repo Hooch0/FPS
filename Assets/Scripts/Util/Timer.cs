@@ -36,6 +36,7 @@ public class Timer
 
         if (Elapsed >= Goal)
         {
+            Pause();
             Elapsed = Goal;
             _finished?.Invoke();
         }

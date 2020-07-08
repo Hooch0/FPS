@@ -2,9 +2,11 @@
 
 public interface IDamageable
 {
-    float Health { get; set; }
+    float Health { get; }
     
     Action<float> Damaged { get; set; }
-    Action<float> Destroyed { get; set; }
+    Action Destroyed { get; set; }
+
+    void TakeDamage(float amount);
 
 }
