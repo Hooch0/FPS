@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 [Serializable]
 public class Timer
@@ -7,14 +8,16 @@ public class Timer
 
     public float Goal { get; private set; }
 
-    private bool _started = false;
+    public bool IsRunning { get; private set; }
+
+    public bool IsFinished { get { return Elapsed >= Goal; } }
 
     private Action _finished;
 
     public Timer(float goal, Action finshedCallback)
     {
        Goal = goal;
-       _finished = finshedCallback;
+       _finished += finshedCallback;
     }
 
     public void SetGoal(float goal)
@@ -29,32 +32,38 @@ public class Timer
 
     public void Update(float deltaTime)
     {
-        if (_started == true)
+        if (IsRunning == true)
         {
             Elapsed += deltaTime;
-        }
 
-        if (Elapsed >= Goal)
-        {
-            Pause();
-            Elapsed = Goal;
-            _finished?.Invoke();
+            if (Elapsed >= Goal)
+            {
+                Pause();
+                Elapsed = Goal;
+                _finished?.Invoke();
+            }
         }
     }
 
     public void Start()
     {
-        _started = true;
+        IsRunning = true;
     }
 
     public void Stop()
     {
-        _started = false;
+        IsRunning = false;
         Elapsed = 0;
+    }
+
+    public void Restart()
+    {
+        Elapsed = 0;
+        IsRunning = true;
     }
 
     public void Pause()
     {
-        _started = false;
+        IsRunning = false;
     }
 }

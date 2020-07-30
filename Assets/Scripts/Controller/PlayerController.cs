@@ -27,7 +27,8 @@ public class PlayerController : MonoBehaviour
     public float SprintMultiplier = 1.25f;
     public float WalkSpeed = 3;
 
-    public Vector2 MinMaxVerticalLook;
+    public float MaxVerticalLook = 255;
+    public float MinVerticalLook = 105;
     public Vector2 TurnSensitivity;
 
     [Header("Jumping")]
@@ -59,7 +60,6 @@ public class PlayerController : MonoBehaviour
     private Timer _aimTransitionTimer;
     private Func<int,bool> _shootInput;
 
-
     private void OnEnable()
     {
         if (Instance != null)
@@ -73,6 +73,11 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        //Cursor.visible = false;
+        
+        _yawEuler = Model.localRotation.eulerAngles;
+        _pitchEuler = CameraContainer.localRotation.eulerAngles;
+
         inventory.Initialize(this);
         inventory.Ammo.SetStartingAmmo(StartingAmmo);
         inventory.WeaponChanged += OnWeaponChanged;
@@ -81,6 +86,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+
         PlayerInput();
         PlayerInteraction();
         GroundCheck();
@@ -173,7 +179,8 @@ public class PlayerController : MonoBehaviour
     private void PlayerRotation()
     {
 
-        float x = ClampXAngle(Input.GetAxis("Mouse Y") * TurnSensitivity.x * Time.deltaTime);
+
+        float x = Util.AddToAngleClamp(Input.GetAxis("Mouse Y") * TurnSensitivity.x * Time.deltaTime,_pitchEuler.x,MinVerticalLook, MaxVerticalLook);
 
         float y = Input.GetAxis("Mouse X") * TurnSensitivity.y * Time.deltaTime;
 
@@ -184,12 +191,9 @@ public class PlayerController : MonoBehaviour
         _pitchEuler.x += -x;
         _yawEuler.y += y;
 
-        Quaternion yaw = Quaternion.Euler(_yawEuler);
-        Quaternion pitch = Quaternion.Euler(_pitchEuler);
-
-
-        Model.localRotation = yaw;
-        CameraContainer.localRotation = pitch;
+        
+        Model.localRotation = Quaternion.Euler(_yawEuler);
+        CameraContainer.localRotation = Quaternion.Euler(_pitchEuler);
 
     }
 
@@ -211,6 +215,11 @@ public class PlayerController : MonoBehaviour
         if (_shootInput?.Invoke(0) == true)
         {
             inventory.CurrentWeapon?.Shoot();
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            inventory.CurrentWeapon?.ShootFinished();
         }
 
         if (Input.GetKeyDown(KeyCode.R))
@@ -312,30 +321,6 @@ public class PlayerController : MonoBehaviour
         _isTransitioning = true;
     }
 
-    private float ClampXAngle(float eulerX)
-    {
-        float x = eulerX;
-
-
-        float angle = _pitchEuler.x - 180;
-
-        if (angle < 0)
-        {
-            angle += 360;
-        }
-
-        if (x > 0 && angle > MinMaxVerticalLook.y || x < 0 && angle < MinMaxVerticalLook.x)
-        {
-            x = eulerX;
-        }
-        else
-        {
-            x = 0;
-        }
-
-        return x;
-    }
-
     private void OnWeaponChanged()
     {
         if (inventory.CurrentWeapon.Data.WeaponFireType == 0)
@@ -353,9 +338,49 @@ public class PlayerController : MonoBehaviour
         inventory.CurrentWeapon.transform.position = HipPosition.position;
     }
 
-    public void ChangePlayerRotation(Vector3 euler)
+    public void SetPlayerRotation(Vector3 euler)
     {
+
+        float x = euler.x;//ClampXAngle(euler.x);
+
+        float y = euler.y;
+
+        if (x == 0 && y == 0)
+        {
+            return;
+        }
+        _pitchEuler.x = -x;
+        _yawEuler.y = y;
+
         
+        Model.localRotation = Quaternion.Euler(_yawEuler);
+        CameraContainer.localRotation = Quaternion.Euler(_pitchEuler);
+
+    }
+
+    public void ApplyPlayerRotation(Vector3 euler)
+    {
+        float x = Util.AddToAngleClamp(euler.x * Time.deltaTime,_pitchEuler.x,MinVerticalLook, MaxVerticalLook);
+
+
+        float y = euler.y* Time.deltaTime;
+
+        if (x == 0 && y == 0)
+        {
+            return;
+        }
+        _pitchEuler.x += -x;
+        _yawEuler.y += y;
+
+        
+        Model.localRotation = Quaternion.Euler(_yawEuler);
+        CameraContainer.localRotation = Quaternion.Euler(_pitchEuler);
+
+    }
+
+    public Quaternion GetRotation()
+    {
+        return Quaternion.Euler(_pitchEuler.x,_yawEuler.y,0);
     }
 
     public Ray GetHitScanRay()

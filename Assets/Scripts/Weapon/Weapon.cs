@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,6 +6,8 @@ public class Weapon : MonoBehaviour, IInteractable
 {
     public const int RAY_MAX_RANGE = 50000;
 
+    public Action Shot { get; set; }
+    public Action FinishedShooting { get; set; }
     public bool IsReloading { get; private set; }
     public bool IsShooting { get; private set; }
 
@@ -15,6 +17,7 @@ public class Weapon : MonoBehaviour, IInteractable
     public int CurrentAmmo;
 
     public WeaponDataSO Data;
+    public Recoil WeaponRecoil;
 
     public GameObject InteractableGO;
     public BoxCollider WeaponCollider;
@@ -29,18 +32,22 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         _shootDelay = new Timer(Data.RPMToInterval, () => { IsShooting = false; _shootDelay.Stop(); } );
         _reloadDelay = new Timer(Data.ReloadTime, () => { IsReloading = false; _reloadDelay.Stop(); } );
+        WeaponRecoil.Initialize(this);
+
     }
 
     private void Update()
     {
         _shootDelay.Update(Time.deltaTime);
         _reloadDelay.Update(Time.deltaTime);
+
+        WeaponRecoil.Update(Time.deltaTime);
     }
 
     public string GetUIMessage(PlayerController interactor)
     {
         //return Localization.EquipWeapon(name);
-        return interactor.inventory.HasEmptySlot == true ? "Press [F] to equip " + name : "Press [F] to swap " + interactor.inventory.CurrentWeapon + " for " + name;
+        return interactor.inventory.HasEmptySlot == true ? "Press [F] to equip " + Data.ReferenceName : "Press [F] to swap " + interactor.inventory.CurrentWeapon.Data.ReferenceName + " for " + name;
     }
 
     public bool CanInteract(PlayerController interactor)
@@ -66,6 +73,7 @@ public class Weapon : MonoBehaviour, IInteractable
         WeaponRigidbody.useGravity = false;
 
         InteractableGO.layer = 0x0;
+        WeaponRecoil.SetRecoilTarget(_player);
 
     }
 
@@ -81,6 +89,7 @@ public class Weapon : MonoBehaviour, IInteractable
         WeaponRigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
         WeaponRigidbody.useGravity = true;
         _player = null;
+        WeaponRecoil.ResetRecoilTarget();
 
     }
 
@@ -88,7 +97,7 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         if (CanShoot == true)
         {
-
+            Shot?.Invoke();
             CurrentAmmo -= 1;
             HitScan();
             IsShooting = true;
@@ -98,6 +107,11 @@ public class Weapon : MonoBehaviour, IInteractable
         {
             Reload();
         }
+    }
+
+    public void ShootFinished()
+    {
+        FinishedShooting?.Invoke();
     }
 
     public void Reload()

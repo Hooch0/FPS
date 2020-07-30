@@ -122,8 +122,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7303561c65563146ba644dda93ffac8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentAmmo: 0
+  CurrentAmmo: 32
   Data: {fileID: 11400000, guid: 9ae356e585bd8cc438179d30cd644113, type: 2}
+  WeaponRecoil:
+    State: 0
+    RecoilSpeed: 0.25
+    DelayBeforeRecovery: 1
+    RecoveryTime: 0.5
+    Data:
+      XAmount: 1
+      YAmount: 0.1
+      DepthAmount: 0
+  RecoilInfo:
+    XAmount: 1
+    YAmount: 0.1
+    DepthAmount: 0
   InteractableGO: {fileID: 4769107389012907939}
   WeaponCollider: {fileID: 1908488413}
   WeaponRigidbody: {fileID: 1908488412}
@@ -223,6 +236,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: MP40
       objectReference: {fileID: 0}
+    - target: {fileID: 4654836607166981864, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: b9c6394e079bacd42abdfacee96e6c0d, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 799f2e3ce537c714bb7246c536f1b10e, type: 3}
 --- !u!4 &571781855287414106 stripped
