@@ -1,48 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-/*Recoil System:
-    * Should be a 1 class fits all type of system.
-    * Does not use animations for any recoil movement. Fully code driven. 
-    * Should be usable by either AI or Player without any changes in code. So generic.
-    * Should have the option to be disabled.
-    * Should have the ability to be modified during runtime.
-    * After weapon has not been fired for X amount of seconds, rotation should attempt to reset back to when started
-    * State machine to help make code more readable
-
-
-    Notes:
-        - After firing is complete, the weapon should recovery back to the lowest point the weapon was pointing at during shooting.
-            e.g if shooting at x0.0 and weapon jumps to x-2.0, then weapon should recover to x0.0. 
-                if shooting at x0.0 and weapon jumps to x-2.0, then weapon is forced to x1.5 but jumps more due to recoil, then weapon should recover to x1.5. 
-
-
-        Recovery Point Rules:
-        Keeps track of player moved rotation in a value called recalRot.
-        1: recalRot set to the rotation before the first recoil amount is applied. -initial shot point
-        2: recalRot euler x value is set to the lowest x value in 360 degree format (never surpasing 360, loops back to 0) 
-        3: if user looks up, recalRot is either added the amount in the euler x value, or is set to the point.
-
-
-        Keep value of player rot when first started shooting, at each addition to recal, keep track of how much in what direction WITH DELTATIME, then at the end
-            take the new player rot, minus the addition and minus the old to get the player changed rotation. Add this amount to the start rotation
-
-        Y Recovery Notes:
-            We only care about backtracking the amount of y added by recoil.
-                So we dont care how much the player changes it, we only remove the amount added by recoil.
-
-    TODO:
-        Recoil Recovery:
-            [DONE]      Goes to the amount moved if the user looks up while recoiling
-            [DONE]      Goes to the lowest point the user looks while recoiling
-            [DONE]      Setup Y recovery
-            [DONE]      Flick Bug
-            [SKIP]      Remove lowest x from "ApplyRecoil" and have it caculated entirely in OnDelayBeforeRecoveryFinished  
-
-            [WORKING]   Discus the previous TODO with others as well as the need for a state machine (might not be needed after all) 
-            [WORKING]   Refactor/Cleanup
-            [WORKING]   Weird interaction when shooting. acts like applied recoil is being multiplies by itself but is not consistent enough to debug properly.
-*/
+//TODO: Depth
 [Serializable]
 public class Recoil
 {
@@ -52,7 +11,9 @@ public class Recoil
     public float RecoilSpeed;
     public float DelayBeforeRecovery;
     public float RecoveryTime;
-    public RecoilData Data;
+    public float DepthAmount;
+
+    public RecoilPattern Pattern;
     private PlayerController _target;
 
     private Timer _recoverDelayTimer;
@@ -127,6 +88,8 @@ public class Recoil
 
         float pX = _target.GetRotation().eulerAngles.x;
 
+
+        //TODO: Calculate max a
         if (Util.CompareAngles(pX,75) < Util.CompareAngles(_endEuler.x,75) )
         {
             _endEuler.x = pX;
@@ -143,7 +106,7 @@ public class Recoil
             _recoverDelayTimer.Start();
             return;
         }
-        _eulerModifer = Vector3.Lerp(Vector3.zero, new Vector3(Data.XAmount,Data.YAmount,0) , _applyRecoilTimer.Elapsed / _applyRecoilTimer.Goal);
+        _eulerModifer = Vector3.Lerp(Vector3.zero, new Vector3(Pattern.CurrentPattern.XAmount, Pattern.CurrentPattern.YAmount, 0) , _applyRecoilTimer.Elapsed / _applyRecoilTimer.Goal);
 
         //Flip the x value only 
         _addedRecoil += new Vector3(-_eulerModifer.x,_eulerModifer.y,_eulerModifer.z) * deltaTime;
@@ -171,7 +134,7 @@ public class Recoil
 
     private void OnWeaponFired()
     {
-        
+        Pattern.ShotFired();  
         if (State == RecoilState.Idle || State == RecoilState.Recovering )
         {
             //If we are idle or recovering then this shot is a new sequence of recoil.
@@ -199,7 +162,7 @@ public class Recoil
     private void OnWeaponFinishedFiring()
     {
         _firingFinished = true;
-
+        Pattern.Reset();
     }
     
     private void OnDelayBeforeRecoveryFinished()
@@ -219,16 +182,11 @@ public class Recoil
         Quaternion newRot = Quaternion.Euler(_startEuler) * Quaternion.Euler(_addedRecoil);
 
 
-        //DebugOverlay.Instance.ChangeVectorValue("deducedStart", deducedStart.eulerAngles);
 
-        //DebugOverlay.Instance.ChangeVectorValue("User Difference", userDif.eulerAngles);
+        float roundX = Mathf.Round(userDif.eulerAngles.x);
+        float roundY = Mathf.Round(userDif.eulerAngles.y);
 
-        float roundX = Mathf.Floor(userDif.eulerAngles.x);
-        float roundY = Mathf.Floor(userDif.eulerAngles.y);
-
-
-        //DebugOverlay.Instance.ChangeVectorValue("Rounded Diff", new Vector3(roundX,roundY,0));
-
+        DebugOverlay.Instance.ChangeVectorValue("Rounded Difference", new Vector3(roundX,roundY,0) );
 
         if (roundX > 0 && roundX <= 90)
         {
@@ -272,21 +230,51 @@ public class Recoil
 [Serializable]
 public class RecoilData
 {
-    /*Fields required: 
-    [Recoil Pattern | Start] - These values could be later removed and added to a type of scriptable object to create recoil patterns.
-    x amount                    - weapon rotation in the x direction
-    y amount                    - weapon rotation in the Y direction
-    [Recoil Pattern | End]
-
-    RecoilSpeed                 - how long it takes to reach the dsired recoil 
-    depth amount                - weapon kick
-    lowest x rot                - lowest point during recoil 
-    recover delay
-    recover time
-
-    */
     public float XAmount;
     public float YAmount;
 
-    public float DepthAmount;
+    public int BulletsTillFinish;
+
+    public bool IsFinished { get { return _currentBullet == BulletsTillFinish; } }
+
+
+    private int _currentBullet;
+
+    public void Reset()
+    {
+        _currentBullet = 0;
+    }
+
+    public void Apply()
+    {
+        _currentBullet++;
+    }
+}
+
+[Serializable]
+public class RecoilPattern
+{
+    public RecoilData CurrentPattern { get { return Patterns[_currentIndex]; }}
+
+    public RecoilData[] Patterns;
+
+    
+    private int _currentIndex;
+
+    public void ShotFired()
+    {
+        CurrentPattern.Apply();
+
+        if (CurrentPattern.IsFinished == true)
+        {
+            CurrentPattern.Reset();
+            _currentIndex = _currentIndex == Patterns.Length - 1 ? 0 : _currentIndex + 1;
+        }
+    }
+
+    public void Reset()
+    {
+        CurrentPattern.Reset();
+        _currentIndex = 0;
+    }
 }

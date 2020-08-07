@@ -17,7 +17,7 @@ public class Dummy : MonoBehaviour, IDamageable
     private float _beforeRegenGoal = 5;
 
     private Timer _regenTimer;
-    private float _regenGoal = 10;
+    private float _regenGoal = 5;
 
     private bool _regen;
     private float _healthBeforeRegen;
@@ -34,7 +34,7 @@ public class Dummy : MonoBehaviour, IDamageable
         });
 
 
-        _regenTimer = new Timer(_regenGoal, () => { _regenTimer.Stop(); } );
+        _regenTimer = new Timer(_regenGoal, () => { _regen = false; _regenTimer.Stop(); } );
     }
 
     private void Update()

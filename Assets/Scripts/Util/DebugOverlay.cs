@@ -22,6 +22,7 @@ public class DebugOverlay : MonoBehaviour
     private float _maxFPS;
     private float _minFPS = 99999999;
 
+    private bool _display = true;
 
     private void Awake()
     {
@@ -40,6 +41,12 @@ public class DebugOverlay : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.BackQuote))
+        {
+            Debug.Log("here");
+            _display = !_display;
+        }
+
         FPS();
         PlayerDistance();
         ChangeVectorValue("Player Rotation",PlayerController.Instance.GetRotation().eulerAngles);
@@ -95,6 +102,10 @@ public class DebugOverlay : MonoBehaviour
 
     private void OnGUI()
     {
+        if (_display == false)
+        {
+            return;
+        }
 
         GUILayout.BeginVertical(GUI.skin.box,GUILayout.Width(250));//(new Rect(0,0,150,500));
 
