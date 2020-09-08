@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ReferenceName: m1garand
   Damage: 56
+  HipSpread: 3
   ReloadTime: 0.6
   RoundsPerMinute: 200
   WeaponFireType: 1

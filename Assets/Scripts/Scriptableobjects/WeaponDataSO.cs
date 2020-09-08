@@ -11,6 +11,8 @@ public class WeaponDataSO : ScriptableObject
 
     public string ReferenceName;
     public int Damage;
+
+    public float HipSpread;
     public float ReloadTime;
     public float RoundsPerMinute;
     public FireType WeaponFireType;

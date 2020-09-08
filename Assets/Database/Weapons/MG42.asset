@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ReferenceName: mg42
   Damage: 24
+  HipSpread: 4
   ReloadTime: 0
   RoundsPerMinute: 1200
   WeaponFireType: 0

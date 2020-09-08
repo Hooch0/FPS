@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ReferenceName: mp40
   Damage: 16
+  HipSpread: 1
   ReloadTime: 0.5
   RoundsPerMinute: 500
   WeaponFireType: 0

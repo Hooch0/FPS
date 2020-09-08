@@ -43,9 +43,9 @@ public class Recoil
 
     public void Initialize(Weapon weapon)
     {
-        weapon.Shot += OnWeaponFired;
-        weapon.FinishedShooting += OnWeaponFinishedFiring;
-
+        weapon.ShotCallback += OnWeaponFired;
+        weapon.FinishedShootingCallback += OnWeaponFinishedFiring;
+        weapon.ReloadCallback += OnWeaponReload;
 
         _recoverDelayTimer = new Timer(DelayBeforeRecovery, OnDelayBeforeRecoveryFinished );
         _applyRecoilTimer = new Timer(RecoilSpeed, () => { } );
@@ -89,8 +89,7 @@ public class Recoil
         float pX = _target.GetRotation().eulerAngles.x;
 
 
-        //TODO: Calculate max a
-        if (Util.CompareAngles(pX,75) < Util.CompareAngles(_endEuler.x,75) )
+        if (Util.CompareAngles(pX,_target.MaxVerticalLook) < Util.CompareAngles(_endEuler.x,_target.MaxVerticalLook) )
         {
             _endEuler.x = pX;
         }
@@ -164,7 +163,13 @@ public class Recoil
         _firingFinished = true;
         Pattern.Reset();
     }
-    
+
+    private void OnWeaponReload()
+    {
+       ResetToIdle();
+    }
+
+
     private void OnDelayBeforeRecoveryFinished()
     {
 
@@ -205,6 +210,7 @@ public class Recoil
 
     }
 
+
     private void ResetToIdle()
     {
          //Finished recovering
@@ -223,6 +229,7 @@ public class Recoil
 
 
         State = RecoilState.Idle;
+        Pattern.Reset();
     }
 
 }
