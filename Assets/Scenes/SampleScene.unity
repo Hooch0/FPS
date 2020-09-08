@@ -2267,7 +2267,8 @@ MonoBehaviour:
   TurnSensitivity: {x: 250, y: 250}
   JumpHeight: 1.3
   GroundCheckHeight: 1.1
-  Distance: 2
+  Distance: 1
+  Radius: 0.125
   InteractionLayer:
     serializedVersion: 2
     m_Bits: 1024

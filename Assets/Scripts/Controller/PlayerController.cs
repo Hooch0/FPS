@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Interaction")]
     public float Distance = 1.5f;
+    public float Radius = 0.5f;
     public LayerMask InteractionLayer;
 
     [Header("Aim Transition")]
@@ -180,7 +181,7 @@ public class PlayerController : MonoBehaviour
     {
 
 
-        float x = Util.AddToAngleClamp(Input.GetAxis("Mouse Y") * TurnSensitivity.x * Time.deltaTime,_pitchEuler.x,MinVerticalLook, MaxVerticalLook);
+        float x = Util.AddAngleClamp(Input.GetAxis("Mouse Y") * TurnSensitivity.x * Time.deltaTime,_pitchEuler.x,MinVerticalLook, MaxVerticalLook);
 
         float y = Input.GetAxis("Mouse X") * TurnSensitivity.y * Time.deltaTime;
 
@@ -260,7 +261,7 @@ public class PlayerController : MonoBehaviour
     private void PlayerInteraction()
     {
         RaycastHit hit;
-        if (Physics.Raycast(CameraContainer.transform.position, CameraContainer.transform.forward,out hit,Distance, InteractionLayer, QueryTriggerInteraction.Collide))
+        if (Physics.SphereCast(CameraContainer.transform.position,Radius,CameraContainer.transform.forward,out hit,Distance, InteractionLayer, QueryTriggerInteraction.Collide))
         {
 
             IInteractable interactable = hit.transform.root.GetComponent<IInteractable>();
@@ -360,10 +361,10 @@ public class PlayerController : MonoBehaviour
 
     public void ApplyPlayerRotation(Vector3 euler)
     {
-        float x = Util.AddToAngleClamp(euler.x * Time.deltaTime,_pitchEuler.x,MinVerticalLook, MaxVerticalLook);
+        float x = Util.AddAngleClamp(euler.x * Time.deltaTime,_pitchEuler.x,MinVerticalLook, MaxVerticalLook);
 
 
-        float y = euler.y* Time.deltaTime;
+        float y = euler.y * Time.deltaTime;
 
         if (x == 0 && y == 0)
         {
@@ -385,7 +386,16 @@ public class PlayerController : MonoBehaviour
 
     public Ray GetHitScanRay()
     {
-        return Camera.main.ViewportPointToRay(new Vector3(0.5f,0.5f,0));
+        Vector3 spread = Vector2.zero;
+
+        if (IsAimingDownSight == false)
+        {
+            spread = (UnityEngine.Random.insideUnitCircle*0.1f) * inventory.CurrentWeapon.Data.HipSpread;
+        }
+        Ray ray = Camera.main.ViewportPointToRay(new Vector2(0.5f,0.5f));
+
+        ray.direction += spread;
+        return ray;
     }
 
     private void OnDrawGizmos()

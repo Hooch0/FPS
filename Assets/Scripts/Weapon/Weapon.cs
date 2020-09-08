@@ -6,12 +6,13 @@ public class Weapon : MonoBehaviour, IInteractable
 {
     public const int RAY_MAX_RANGE = 50000;
 
-    public Action Shot { get; set; }
-    public Action FinishedShooting { get; set; }
+    public Action ShotCallback { get; set; }
+    public Action FinishedShootingCallback { get; set; }
+    public Action ReloadCallback { get; set; }
     public bool IsReloading { get; private set; }
     public bool IsShooting { get; private set; }
 
-    public bool CanShoot { get { return IsReloading == false && CurrentAmmo > 0 && IsShooting == false; } }
+    public bool CanShoot { get { return IsReloading == false && CurrentAmmo > 0 ; } }
     public bool CanReload { get { return _player.inventory.Ammo.GetAmmo(Data.AmmoType).CurrentReserveAmmo > 0; } }
 
     public int CurrentAmmo;
@@ -31,7 +32,7 @@ public class Weapon : MonoBehaviour, IInteractable
     private void Awake()
     {
         _shootDelay = new Timer(Data.RPMToInterval, () => { IsShooting = false; _shootDelay.Stop(); } );
-        _reloadDelay = new Timer(Data.ReloadTime, () => { IsReloading = false; _reloadDelay.Stop(); } );
+        _reloadDelay = new Timer(Data.ReloadTime, () => {  ReloadWeapon(); _reloadDelay.Stop(); } );
         WeaponRecoil.Initialize(this);
 
     }
@@ -95,28 +96,40 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public void Shoot()
     {
-        if (CanShoot == true)
+        if (CanShoot == true && IsShooting == false)
         {
-            Shot?.Invoke();
+            if (_player.IsAimingDownSight == true)
+            {
+                ShotCallback?.Invoke();
+            }
             CurrentAmmo -= 1;
             HitScan();
             IsShooting = true;
             _shootDelay.Start();
         }
-        else if (CanReload == true)
+        else if (CanShoot == false && CanReload == true)
         {
+            
             Reload();
         }
     }
 
     public void ShootFinished()
     {
-        FinishedShooting?.Invoke();
+        FinishedShootingCallback?.Invoke();
     }
 
     public void Reload()
     {
-        if (IsShooting == false && IsReloading == false)
+        ReloadCallback?.Invoke();
+        IsReloading = true;
+        _reloadDelay.Start();
+    }
+
+    private void ReloadWeapon()
+    {
+
+        if (IsShooting == false && IsReloading == true)
         {
             //Play animation
             int needed =  Data.AmmoSize - CurrentAmmo;
@@ -132,6 +145,8 @@ public class Weapon : MonoBehaviour, IInteractable
             CurrentAmmo += needed;
 
         }
+
+        IsReloading = false;
     }
 
     private void HitScan()
