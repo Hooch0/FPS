@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1745612672602026288}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Graphics Layer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 136481292}
   - component: {fileID: 1908488412}
   - component: {fileID: 1908488413}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: MP40
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -126,18 +126,20 @@ MonoBehaviour:
   Data: {fileID: 11400000, guid: 9ae356e585bd8cc438179d30cd644113, type: 2}
   WeaponRecoil:
     State: 0
-    RecoilSpeed: 0.25
-    DelayBeforeRecovery: 1
-    RecoveryTime: 0.5
-    Data:
-      XAmount: 1
-      YAmount: 0.1
-      DepthAmount: 0
-  RecoilInfo:
-    XAmount: 1
-    YAmount: 0.1
+    RecoilSpeed: 0.1
+    DelayBeforeRecovery: 0.25
+    RecoveryTime: 0.25
     DepthAmount: 0
+    Pattern:
+      Patterns:
+      - XAmount: 22
+        YAmount: 7
+        BulletsTillFinish: 3
+      - XAmount: 22
+        YAmount: -7
+        BulletsTillFinish: 3
   InteractableGO: {fileID: 4769107389012907939}
+  GraphicsLayer: {fileID: 2921867285546816409}
   WeaponCollider: {fileID: 1908488413}
   WeaponRigidbody: {fileID: 1908488412}
 --- !u!54 &1908488412
@@ -176,6 +178,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1745612672602026288}
     m_Modifications:
+    - target: {fileID: -5523458524045721492, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 799f2e3ce537c714bb7246c536f1b10e,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -231,10 +238,65 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -2379026643367894651, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -1815203934875081847, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -928208058369757064, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -927199367670048503, guid: 799f2e3ce537c714bb7246c536f1b10e,
         type: 3}
       propertyPath: m_Name
       value: MP40
+      objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 78395160325882199, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 284657300160511538, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1348439241702903362, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3222319812070047343, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3369837007909896211, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3729100948908456297, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4406095362867369457, guid: 799f2e3ce537c714bb7246c536f1b10e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4654836607166981864, guid: 799f2e3ce537c714bb7246c536f1b10e,
         type: 3}

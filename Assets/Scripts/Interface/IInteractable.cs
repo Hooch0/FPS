@@ -4,10 +4,10 @@ using UnityEngine;
 
 public interface IInteractable
 {
-    void Interact(PlayerController interactor);
+    void Interact(ICharacter character);
 
-    bool CanInteract(PlayerController interactor);
+    bool CanInteract(ICharacter character);
 
-    string GetUIMessage(PlayerController interactor);    
+    string GetUIMessage(ICharacter character);    
 }
 

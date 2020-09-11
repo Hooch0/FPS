@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, ICharacter
 {
     public static PlayerController Instance { get; private set; }
 
@@ -13,10 +13,14 @@ public class PlayerController : MonoBehaviour
     public bool IsGrounded { get { return GroundCheck(); } }
     public bool IsAimingDownSight { get; private set; }
 
+    public float MaxVerticalLook { get { return _maxVerticalLook; } }
+    public float MinVerticalLook { get { return _minVerticalLook; } }
+
+
 
     public Transform CameraContainer;
     public Transform Model;
-    public LayerMask CharacterLayer;
+    public LayerMask GroundCheckExclude;
     public CharacterController Character;
 
 
@@ -27,8 +31,8 @@ public class PlayerController : MonoBehaviour
     public float SprintMultiplier = 1.25f;
     public float WalkSpeed = 3;
 
-    public float MaxVerticalLook = 255;
-    public float MinVerticalLook = 105;
+    [SerializeField] private float _maxVerticalLook = 75;
+    [SerializeField] private float _minVerticalLook = -75;
     public Vector2 TurnSensitivity;
 
     [Header("Jumping")]
@@ -45,6 +49,9 @@ public class PlayerController : MonoBehaviour
     public Transform HipPosition;
     public Transform AimDownSightsPosition;
 
+    public Transform Arms;
+    public Transform ArmsHolder;
+
 
     [Header("Inventory")]
     public Inventory inventory;
@@ -57,7 +64,7 @@ public class PlayerController : MonoBehaviour
     private Color _groundCheckColor = Color.magenta;
     
 
-    private Vector3 _velocity;
+    private float _jumpVelocity;
     private Timer _aimTransitionTimer;
     private Func<int,bool> _shootInput;
 
@@ -105,21 +112,13 @@ public class PlayerController : MonoBehaviour
             if (IsAimingDownSight == true)
             {
                 //tranisiton to aming down sight position.
-                inventory.CurrentWeapon.transform.position = Vector3.Lerp (HipPosition.position, AimDownSightsPosition.position,_aimTransitionTimer.Elapsed / _aimTransitionTimer.Goal);
+                Arms.position = Vector3.Lerp (HipPosition.position, AimDownSightsPosition.position,_aimTransitionTimer.Elapsed / _aimTransitionTimer.Goal);
 
-                //Lerp (Linear-interpolation)
-                //Percentage of A and B [0-1] over time of t
-                //Exmaple: 
-                //A = 0
-                //B = 10
-                //t = 0.5f
-                //Result = 5
-            
             }
             else
             {
                 //transition to hip position.
-                inventory.CurrentWeapon.transform.position = Vector3.Lerp (AimDownSightsPosition.position, HipPosition.position,_aimTransitionTimer.Elapsed / _aimTransitionTimer.Goal);
+                Arms.position = Vector3.Lerp (AimDownSightsPosition.position, HipPosition.position,_aimTransitionTimer.Elapsed / _aimTransitionTimer.Goal);
             }
 
             if (_aimTransitionTimer.Elapsed == _aimTransitionTimer.Goal)
@@ -149,15 +148,13 @@ public class PlayerController : MonoBehaviour
 
         if (IsGrounded == true && Input.GetKeyDown(KeyCode.Space))
         {
-            _velocity.y = Mathf.Sqrt(JumpHeight * -2f * Physics.gravity.y);
+            _jumpVelocity = Mathf.Sqrt(JumpHeight * -2f * Physics.gravity.y);
         }
 
-
-        if (IsGrounded == true && _velocity.y < 0)
+        if (IsGrounded == true && _jumpVelocity < 0)
         {
-            _velocity.y = -2f;
+            _jumpVelocity = 0;
         }
-
 
         if (Input.GetKey(KeyCode.LeftControl))
         {
@@ -169,19 +166,33 @@ public class PlayerController : MonoBehaviour
             speed = Speed * SprintMultiplier;
         }
 
-        _velocity.x = x * strafe;
-        _velocity.z = z * speed;
+        //Check to make sure the magnitude is not greater then 1
+        Vector3 move = new Vector3(x,0,z);
 
-        _velocity.y += Physics.gravity.y * Time.deltaTime;
+        if (move.magnitude > 1)
+        {
+            move.Normalize();
+        }
 
-        Character.Move(transform.localRotation * _velocity * Time.deltaTime);
+        //Apply movement modifiers
+        move.x *= strafe;
+        move.z *= speed;
+
+        //Apply rotation to vector so the character is moving in the direction the character is facing
+        move = transform.localRotation * move;
+
+        Character.Move(move * Time.deltaTime);
+
+        _jumpVelocity += Physics.gravity.y * Time.deltaTime;
+
+        Character.Move(Vector3.up * _jumpVelocity * Time.deltaTime);
     }
 
     private void PlayerRotation()
     {
 
 
-        float x = Util.AddAngleClamp(Input.GetAxis("Mouse Y") * TurnSensitivity.x * Time.deltaTime,_pitchEuler.x,MinVerticalLook, MaxVerticalLook);
+        float x = Util.AddAngleClamp(Input.GetAxis("Mouse Y") * TurnSensitivity.x * Time.deltaTime,_pitchEuler.x,_minVerticalLook, _maxVerticalLook);
 
         float y = Input.GetAxis("Mouse X") * TurnSensitivity.y * Time.deltaTime;
 
@@ -244,12 +255,12 @@ public class PlayerController : MonoBehaviour
     {
 
         RaycastHit hit;
-
+        Vector3 offset = new Vector3(0,-0.75f,0);
         //Boxcast/spherecast
-        bool check = Physics.SphereCast(transform.position +Vector3.up * (Character.radius + Physics.defaultContactOffset),
+        bool check = Physics.SphereCast(offset + transform.position + Vector3.up * (Character.radius + Physics.defaultContactOffset),
          Character.radius - Physics.defaultContactOffset,
          Vector3.down,
-         out hit ,GroundCheckHeight,~CharacterLayer);
+         out hit ,GroundCheckHeight,~GroundCheckExclude);
 
         _groundCheckColor = check == true ? Color.magenta : Color.red;
 
@@ -324,25 +335,36 @@ public class PlayerController : MonoBehaviour
 
     private void OnWeaponChanged()
     {
-        if (inventory.CurrentWeapon.Data.WeaponFireType == 0)
-        {
-            _shootInput = Input.GetMouseButton;
-        }
-        else 
-        {
-            _shootInput = Input.GetMouseButtonDown;
-        }
 
         _isTransitioning = false;
         _aimTransitionTimer.Stop();
         IsAimingDownSight = false;
-        inventory.CurrentWeapon.transform.position = HipPosition.position;
+
+        if (inventory.HasWeapon == false)
+        {
+            Arms.gameObject.SetActive(false);
+        }
+        else
+        {
+            if (inventory.CurrentWeapon.Data.WeaponFireType == 0)
+            {
+                _shootInput = Input.GetMouseButton;
+            }
+            else 
+            {
+                _shootInput = Input.GetMouseButtonDown;
+            }
+
+        
+            inventory.CurrentWeapon.transform.position = HipPosition.position;
+            Arms.gameObject.SetActive(true);
+        }
     }
 
-    public void SetPlayerRotation(Vector3 euler)
+    public void SetRotation(Vector3 euler)
     {
 
-        float x = euler.x;//ClampXAngle(euler.x);
+        float x = euler.x;
 
         float y = euler.y;
 
@@ -359,9 +381,9 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    public void ApplyPlayerRotation(Vector3 euler)
+    public void ApplyRotation(Vector3 euler)
     {
-        float x = Util.AddAngleClamp(euler.x * Time.deltaTime,_pitchEuler.x,MinVerticalLook, MaxVerticalLook);
+        float x = Util.AddAngleClamp(euler.x * Time.deltaTime,_pitchEuler.x,_minVerticalLook, _maxVerticalLook);
 
 
         float y = euler.y * Time.deltaTime;
@@ -379,6 +401,21 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    public Transform GetArmsHolder()
+    {
+        return ArmsHolder;
+    }
+
+    public Inventory GetInventory()
+    {
+        return inventory;
+    }
+
+    public Vector3 GetPosition()
+    {
+        return transform.position;
+    }
+
     public Quaternion GetRotation()
     {
         return Quaternion.Euler(_pitchEuler.x,_yawEuler.y,0);
@@ -386,15 +423,15 @@ public class PlayerController : MonoBehaviour
 
     public Ray GetHitScanRay()
     {
-        Vector3 spread = Vector2.zero;
+        Vector3 spread = Vector3.zero;
 
         if (IsAimingDownSight == false)
         {
-            spread = (UnityEngine.Random.insideUnitCircle*0.1f) * inventory.CurrentWeapon.Data.HipSpread;
+            spread = (UnityEngine.Random.insideUnitSphere*0.1f) * inventory.CurrentWeapon.Data.HipSpread;
         }
-        Ray ray = Camera.main.ViewportPointToRay(new Vector2(0.5f,0.5f));
-
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f,0.5f,0));
         ray.direction += spread;
+
         return ray;
     }
 
@@ -402,15 +439,16 @@ public class PlayerController : MonoBehaviour
     {
         if (IS_DEBUG == true)
         {
-            //Boxcast/spherecast
-
-        
-
             Vector3 pos = transform.position + transform.up/2*-1;
 
-
             Gizmos.color = _groundCheckColor;
-            Gizmos.DrawSphere(transform.position +Vector3.up * (Character.radius + Physics.defaultContactOffset),Character.radius - Physics.defaultContactOffset);
+            Vector3 offset = new Vector3(0,-0.75f,0);
+            //Gizmos.DrawSphere(offset + transform.position + Vector3.up * (Character.radius + Physics.defaultContactOffset),Character.radius - Physics.defaultContactOffset);
+
+            for (float i = 0; i < GroundCheckHeight; i+=0.1f)
+            {
+                Gizmos.DrawSphere(offset + (transform.position + Vector3.up * (Character.radius + Physics.defaultContactOffset) - Vector3.up * i),Character.radius - Physics.defaultContactOffset);
+            }
         }
     }
 
