@@ -14,7 +14,7 @@ public class Recoil
     public float DepthAmount;
 
     public RecoilPattern Pattern;
-    private PlayerController _target;
+    private ICharacter _character;
 
     private Timer _recoverDelayTimer;
     private Timer _applyRecoilTimer;
@@ -53,20 +53,18 @@ public class Recoil
 
     }
 
-    public void SetRecoilTarget(PlayerController target)
+    public void SetRecoilTarget(ICharacter character)
     {
-        _target = target;
+        _character = character;
     }
 
     public void ResetRecoilTarget()
     {
-        _target = null;
+        _character = null;
     }
 
     public void Update(float deltaTime)
     {
-        DebugOverlay.Instance.ChangeStringValue("State",State.ToString());
-
         _recoverDelayTimer.Update(deltaTime);
         _applyRecoilTimer.Update(deltaTime);
         _recoveryTimer.Update(deltaTime);
@@ -86,19 +84,19 @@ public class Recoil
     private void ApplyRecoil(float deltaTime)
     {
 
-        float pX = _target.GetRotation().eulerAngles.x;
+        float pX = _character.GetRotation().eulerAngles.x;
 
 
-        if (Util.CompareAngles(pX,_target.MaxVerticalLook) < Util.CompareAngles(_endEuler.x,_target.MaxVerticalLook) )
+        if (Util.CompareAngles(pX,_character.MaxVerticalLook) < Util.CompareAngles(_endEuler.x,_character.MaxVerticalLook) )
         {
             _endEuler.x = pX;
         }
 
         if (_applyRecoilTimer.IsFinished == true && _firingFinished == true)
         {
-            _appliedEuler = _target.GetRotation().eulerAngles;
+            _appliedEuler = _character.GetRotation().eulerAngles;
 
-            _changedRecoveryEuler = _target.GetRotation().eulerAngles;
+            _changedRecoveryEuler = _character.GetRotation().eulerAngles;
 
             State = RecoilState.DelayBeforeRecovery;
             _applyRecoilTimer.Stop();
@@ -111,12 +109,12 @@ public class Recoil
         _addedRecoil += new Vector3(-_eulerModifer.x,_eulerModifer.y,_eulerModifer.z) * deltaTime;
 
         //Apply rotation already scales by delta time 
-        _target.ApplyPlayerRotation(_eulerModifer);
+        _character.ApplyRotation(_eulerModifer);
     }
 
     private void RecoverFromRecoil()
     {
-        if (_recoveryTimer.IsFinished == true || _changedRecoveryEuler != _target.GetRotation().eulerAngles)
+        if (_recoveryTimer.IsFinished == true || _changedRecoveryEuler != _character.GetRotation().eulerAngles)
         {
             ResetToIdle();
             return;
@@ -126,8 +124,8 @@ public class Recoil
         _eulerModifer.x = -_eulerModifer.x;
         
         
-        _target.SetPlayerRotation(_eulerModifer);
-        _changedRecoveryEuler = _target.GetRotation().eulerAngles;
+        _character.SetRotation(_eulerModifer);
+        _changedRecoveryEuler = _character.GetRotation().eulerAngles;
 
     }
 
@@ -140,9 +138,9 @@ public class Recoil
             //And make sure all values have been reset in case recovery was never finished.
 
             ResetToIdle();
-            _endEuler.x = _target.GetRotation().eulerAngles.x;
-            _endEuler.y = _target.GetRotation().eulerAngles.y;
-            _startEuler = _target.GetRotation().eulerAngles;
+            _endEuler.x = _character.GetRotation().eulerAngles.x;
+            _endEuler.y = _character.GetRotation().eulerAngles.y;
+            _startEuler = _character.GetRotation().eulerAngles;
         }
         else
         {
@@ -169,14 +167,13 @@ public class Recoil
        ResetToIdle();
     }
 
-
     private void OnDelayBeforeRecoveryFinished()
     {
 
 
         //'subtract' the amount of recoil added to the rotation
         //This would be the point the player started shoooing from if they never changed the rotation.
-        Quaternion deducedStart = _target.GetRotation() * Quaternion.Euler(-_addedRecoil);
+        Quaternion deducedStart = _character.GetRotation() * Quaternion.Euler(-_addedRecoil);
 
         //Find the difference between when we started shooting and now. 
         //This is so we know if the user changed the rotation.
@@ -191,8 +188,6 @@ public class Recoil
         float roundX = Mathf.Round(userDif.eulerAngles.x);
         float roundY = Mathf.Round(userDif.eulerAngles.y);
 
-        DebugOverlay.Instance.ChangeVectorValue("Rounded Difference", new Vector3(roundX,roundY,0) );
-
         if (roundX > 0 && roundX <= 90)
         {
             _endEuler.x = newRot.eulerAngles.x;
@@ -201,15 +196,13 @@ public class Recoil
         if (roundY > 0 && roundY <= 90 || roundY > 90 && roundY < 360)
         {
             //Looking left/right
-            _endEuler.y = _target.GetRotation().eulerAngles.y;
-
+            _endEuler.y = _character.GetRotation().eulerAngles.y;
         }
 
 		State = RecoilState.Recovering;
         _recoveryTimer.Start(); 
 
     }
-
 
     private void ResetToIdle()
     {
@@ -270,6 +263,11 @@ public class RecoilPattern
 
     public void ShotFired()
     {
+        if (Patterns.Length == 0)
+        {
+            return;
+        }
+
         CurrentPattern.Apply();
 
         if (CurrentPattern.IsFinished == true)
@@ -281,6 +279,12 @@ public class RecoilPattern
 
     public void Reset()
     {
+        
+        if (Patterns.Length == 0)
+        {
+            return;
+        }
+
         CurrentPattern.Reset();
         _currentIndex = 0;
     }

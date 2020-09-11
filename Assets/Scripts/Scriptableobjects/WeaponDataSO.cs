@@ -13,6 +13,9 @@ public class WeaponDataSO : ScriptableObject
     public int Damage;
 
     public float HipSpread;
+
+    public float Kick;
+    public float KickTime;
     public float ReloadTime;
     public float RoundsPerMinute;
     public FireType WeaponFireType;

@@ -100,6 +100,11 @@ public class Inventory
             //Even if the primary is empty, switch to it.
             SwitchToWeapon(0);
         }
+
+        if (CurrentWeapon == null)
+        {
+            WeaponChanged?.Invoke();
+        }
     }
     
     public void AddAmmo(string type, int amount)

@@ -13,7 +13,7 @@ public class Weapon : MonoBehaviour, IInteractable
     public bool IsShooting { get; private set; }
 
     public bool CanShoot { get { return IsReloading == false && CurrentAmmo > 0 ; } }
-    public bool CanReload { get { return _player.inventory.Ammo.GetAmmo(Data.AmmoType).CurrentReserveAmmo > 0; } }
+    public bool CanReload { get { return _character.GetInventory().Ammo.GetAmmo(Data.AmmoType).CurrentReserveAmmo > 0; } }
 
     public int CurrentAmmo;
 
@@ -21,18 +21,26 @@ public class Weapon : MonoBehaviour, IInteractable
     public Recoil WeaponRecoil;
 
     public GameObject InteractableGO;
+    public GameObject GraphicsLayer;
     public BoxCollider WeaponCollider;
     public Rigidbody WeaponRigidbody;
 
-    private PlayerController _player;
+    private ICharacter _character;
 
     private Timer _shootDelay;
     private Timer _reloadDelay;
+
+    private Timer _kickTimer;
+
+    private float _kickZ;
+    private enum KickBackState { Idle, Kickback, Reset}
+    private KickBackState _kickbackState = KickBackState.Idle;
 
     private void Awake()
     {
         _shootDelay = new Timer(Data.RPMToInterval, () => { IsShooting = false; _shootDelay.Stop(); } );
         _reloadDelay = new Timer(Data.ReloadTime, () => {  ReloadWeapon(); _reloadDelay.Stop(); } );
+        _kickTimer = new Timer(Data.KickTime, null);
         WeaponRecoil.Initialize(this);
 
     }
@@ -41,29 +49,33 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         _shootDelay.Update(Time.deltaTime);
         _reloadDelay.Update(Time.deltaTime);
-
+        _kickTimer.Update(Time.deltaTime);
         WeaponRecoil.Update(Time.deltaTime);
+
+        KickbackUpdate();
     }
 
-    public string GetUIMessage(PlayerController interactor)
+    public string GetUIMessage(ICharacter character)
     {
         //return Localization.EquipWeapon(name);
-        return interactor.inventory.HasEmptySlot == true ? "Press [F] to equip " + Data.ReferenceName : "Press [F] to swap " + interactor.inventory.CurrentWeapon.Data.ReferenceName + " for " + name;
+        return character.GetInventory().HasEmptySlot == true ? "Press [F] to equip " + Data.ReferenceName : "Press [F] to swap " + character.GetInventory().CurrentWeapon.Data.ReferenceName + " for " + name;
     }
 
-    public bool CanInteract(PlayerController interactor)
+    public bool CanInteract(ICharacter character)
     {
         return true;
     }
 
-    public void Interact(PlayerController interactor)
+    public void Interact(ICharacter character)
     {
-        _player = interactor;
+        _character = character;
 
 
-        _player.inventory.EquipWeapon(this);
+        _character.GetInventory().EquipWeapon(this);
+
+        ChangeGraphicsLayerMask(8);
         
-        transform.parent = _player.HipPosition.transform;
+        transform.parent = _character.GetArmsHolder().transform;
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.identity;
 
@@ -74,13 +86,14 @@ public class Weapon : MonoBehaviour, IInteractable
         WeaponRigidbody.useGravity = false;
 
         InteractableGO.layer = 0x0;
-        WeaponRecoil.SetRecoilTarget(_player);
+        WeaponRecoil.SetRecoilTarget(_character);
 
     }
 
     public void Drop()
     {
 
+        ChangeGraphicsLayerMask(0);
         transform.parent = null;
 
         InteractableGO.layer = 0xA;
@@ -89,7 +102,7 @@ public class Weapon : MonoBehaviour, IInteractable
         WeaponRigidbody.isKinematic = false;
         WeaponRigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
         WeaponRigidbody.useGravity = true;
-        _player = null;
+        _character = null;
         WeaponRecoil.ResetRecoilTarget();
 
     }
@@ -98,7 +111,7 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         if (CanShoot == true && IsShooting == false)
         {
-            if (_player.IsAimingDownSight == true)
+            if (_character.IsAimingDownSight == true)
             {
                 ShotCallback?.Invoke();
             }
@@ -106,6 +119,8 @@ public class Weapon : MonoBehaviour, IInteractable
             HitScan();
             IsShooting = true;
             _shootDelay.Start();
+            _kickbackState = KickBackState.Kickback;
+            _kickTimer.Restart();
         }
         else if (CanShoot == false && CanReload == true)
         {
@@ -126,6 +141,38 @@ public class Weapon : MonoBehaviour, IInteractable
         _reloadDelay.Start();
     }
 
+    private void KickbackUpdate()
+    {
+        if (_kickbackState == KickBackState.Idle)
+        {
+            return;
+        }
+
+        Transform arms = _character.GetArmsHolder();
+
+        if (_kickbackState == KickBackState.Kickback)
+        {
+            _kickZ = Mathf.Lerp(0,Data.Kick,_kickTimer.Elapsed / _kickTimer.Goal);
+            if (_kickTimer.IsFinished == true)
+            {
+                _kickbackState = KickBackState.Reset;
+                _kickTimer.Restart();
+            }
+        }
+        else if (_kickbackState == KickBackState.Reset)
+        {
+            _kickZ = Mathf.Lerp(Data.Kick,0 ,_kickTimer.Elapsed / _kickTimer.Goal);
+            if (_kickTimer.IsFinished == true)
+            {
+                _kickbackState = KickBackState.Idle;
+                _kickTimer.Stop();
+            }
+        }
+
+        arms.localPosition = new Vector3(0,0,-_kickZ);
+
+    }
+
     private void ReloadWeapon()
     {
 
@@ -134,7 +181,7 @@ public class Weapon : MonoBehaviour, IInteractable
             //Play animation
             int needed =  Data.AmmoSize - CurrentAmmo;
 
-            ReserveAmmo ammo = _player.inventory.Ammo.GetAmmo(Data.AmmoType);
+            ReserveAmmo ammo = _character.GetInventory().Ammo.GetAmmo(Data.AmmoType);
 
             if (ammo.CurrentReserveAmmo < needed)
             {
@@ -151,7 +198,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private void HitScan()
     {
-        Ray ray = _player.GetHitScanRay();
+        Ray ray = _character.GetHitScanRay();
         RaycastHit hit;
 
         //we could do raycast all and filter out the current user.
@@ -171,6 +218,25 @@ public class Weapon : MonoBehaviour, IInteractable
         }
 
 
+    }
+
+    private void ChangeGraphicsLayerMask(int layer)
+    {
+       ChangeLayers(GraphicsLayer.transform, layer);
+    }
+
+    private void ChangeLayers(Transform root, int layer)
+    {
+         root.gameObject.layer = layer;
+
+        foreach(Transform trs in root)
+        {
+            trs.gameObject.layer = layer;
+            if (trs.childCount > 0)
+            {
+                ChangeLayers(trs,layer);
+            }
+        }
     }
 
 }
