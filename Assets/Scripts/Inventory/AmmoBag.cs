@@ -6,12 +6,12 @@ using System.Collections.Generic;
 public class AmmoBag
 {
 
-    public AmmoScriptableObject AmmoDatabase;
+    public AmmoSO AmmoDatabase;
     private Dictionary<string,ReserveAmmo> _ammoMap = new Dictionary<string, ReserveAmmo>();
 
     public void Initialize()
     {
-        foreach(AmmoDataSO type in AmmoDatabase.AmmoTypes)
+        foreach(AmmoData type in AmmoDatabase.AmmoTypes)
         {
             _ammoMap.Add(type.ReferenceType, new ReserveAmmo(type.ReferenceType,0,type.MaxAmmo));
         }

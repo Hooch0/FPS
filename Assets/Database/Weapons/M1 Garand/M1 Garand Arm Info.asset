@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfc3b3cd005ad464c976aec5e01f2d77, type: 3}
+  m_Name: M1 Garand Arm Info
+  m_EditorClassIdentifier: 
+  LeftArm:
+    UpperArmPosition: {x: -0.13799487, y: -0.029, z: -0.17898941}
+    UpperArmRotation: {x: 0.36963817, y: -0, z: -0, w: 0.92917573}
+    ForearmPosition: {x: -0.06798831, y: -0.057, z: 0.07902211}
+    ForearmRotation: {x: -0.06841929, y: 0.17895165, z: 0.012475839, w: 0.98139673}
+    HandPosition: {x: 0.006, y: 0.011, z: 0.245}
+    HandRotation: {x: 0, y: 0, z: 0, w: 1}
+  RightArm:
+    UpperArmPosition: {x: 0.186, y: -0.005, z: -0.461}
+    UpperArmRotation: {x: 0.28711045, y: 0.20677973, z: 0.06362203, w: 0.9331463}
+    ForearmPosition: {x: 0.13, y: -0.043, z: -0.262}
+    ForearmRotation: {x: 0.0024876348, y: -0.31462884, z: -0.0075047724, w: 0.9491819}
+    HandPosition: {x: 0.01, y: -0.026, z: -0.085}
+    HandRotation: {x: 0, y: 0, z: 0, w: 1}

@@ -121,8 +121,8 @@ public class DebugOverlay : MonoBehaviour
         GUILayout.Label("Max Distance Traveled: " + _maxDistance.ToString());
         if (GUILayout.Button("Refil Current Weapon Ammo"))
         {
-            PlayerController.Instance.inventory.Ammo.AddAmmo(PlayerController.Instance.inventory.CurrentWeapon.Data.AmmoType
-            ,PlayerController.Instance.inventory.Ammo.GetAmmo(PlayerController.Instance.inventory.CurrentWeapon.Data.AmmoType).MaxAmmo);
+            PlayerController.Instance.InventorySystem.Ammo.AddAmmo(PlayerController.Instance.InventorySystem.CurrentWeapon.Data.AmmoType
+            ,PlayerController.Instance.InventorySystem.Ammo.GetAmmo(PlayerController.Instance.InventorySystem.CurrentWeapon.Data.AmmoType).MaxAmmo);
         }
 
         foreach(string reff in _customBoolLabel.Keys)

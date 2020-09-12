@@ -42,7 +42,7 @@ public class UIManager : MonoBehaviour
 
     private void UpdateWeaponUI()
     {
-        Inventory inventory = PlayerController.Instance.inventory;
+        Inventory inventory = PlayerController.Instance.InventorySystem;
 
         if (inventory.CurrentWeapon != null)
         {

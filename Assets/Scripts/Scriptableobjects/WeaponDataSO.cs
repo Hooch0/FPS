@@ -14,6 +14,7 @@ public class WeaponDataSO : ScriptableObject
 
     public float HipSpread;
 
+    public float RecoilRetentionTime = 0.5f;
     public float Kick;
     public float KickTime;
     public float ReloadTime;
@@ -22,6 +23,8 @@ public class WeaponDataSO : ScriptableObject
     public int AmmoSize;
 
     public string AmmoType;
+
+    public ArmWeaponInfoSO ArmData;
 
 }
 

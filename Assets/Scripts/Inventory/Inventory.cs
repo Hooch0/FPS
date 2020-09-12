@@ -153,17 +153,24 @@ public class Inventory
 
     private void SetActiveWeapon()
     {
+        Weapon old = null;
+
         if (_selection == 0)
         {
             Secondary?.gameObject.SetActive(false);
             Primary?.gameObject.SetActive(true);
-
+            old = Secondary;
         }
         else
         {
             Primary?.gameObject.SetActive(false);
             Secondary?.gameObject.SetActive(true);
+
+            old = Primary;
         }
+
+        old?.OnWeaponInactive();
+        CurrentWeapon.OnWeaponActive();
         WeaponChanged?.Invoke();
     }
 
