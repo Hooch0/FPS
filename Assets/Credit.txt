@@ -6,10 +6,15 @@ MP40
 
 M1 Garand
     This asset was taken from https://sketchfab.com/3d-models/realistic-m1-garand-8d639aed01a94c8bb6e8cb58070a71f3
-    All credit goes to the creator of this assset.
+    All credit goes to the creator Raymond.
     The license type is CC Attribution
     https://creativecommons.org/licenses/by/4.0/deed.ast
 
+MG42
+    This asset was taken from https://sketchfab.com/3d-models/mg42-with-mag-a509e86f515449208e280de5f1b4d2d0
+    All credit goes to the creator Thunder.
+    The license type is CC Attribution-ShareAlike
+    https://creativecommons.org/licenses/by-sa/4.0/
 
 Bullet Hole
     This asset was taken from https://www.pngkit.com/bigpic/u2q8a9a9e6e6o0e6/
