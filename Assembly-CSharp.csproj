@@ -36,14 +36,17 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Interface\ICharacter.cs" />
      <Compile Include="Assets\Scripts\Manager\BulletHoleManager.cs" />
      <Compile Include="Assets\Scripts\Weapon\Weapon.cs" />
      <Compile Include="Assets\Scripts\Scriptableobjects\WeaponDataSO.cs" />
      <Compile Include="Assets\Scripts\Util\Timer.cs" />
-     <Compile Include="Assets\Scripts\Scriptableobjects\AmmoScriptableObject.cs" />
+     <Compile Include="Assets\Scripts\Character\ArmsInfo.cs" />
+     <Compile Include="Assets\Scripts\Scriptableobjects\AmmoSO.cs" />
      <Compile Include="Assets\Scripts\Util\DebugOverlay.cs" />
      <Compile Include="Assets\Scripts\Inventory\ReserveAmmo.cs" />
-     <Compile Include="Assets\Scripts\Controller\PlayerController.cs" />
+     <Compile Include="Assets\Scripts\Scriptableobjects\ArmSOInfo.cs" />
+     <Compile Include="Assets\Scripts\Character\PlayerController.cs" />
      <Compile Include="Assets\Scripts\Manager\ObjectPool.cs" />
      <Compile Include="Assets\Scripts\Inventory\AmmoBag.cs" />
      <Compile Include="Assets\Scripts\Weapon\Recoil.cs" />
@@ -52,9 +55,9 @@
      <Compile Include="Assets\Scripts\Interface\IInteractable.cs" />
      <Compile Include="Assets\Scripts\Util\Util.cs" />
      <Compile Include="Assets\Scripts\Interface\IDamageable.cs" />
-     <Compile Include="Assets\Scripts\Scriptableobjects\AmmoDataSO.cs" />
+     <Compile Include="Assets\Scripts\Scriptableobjects\ArmWeaponInfoSO.cs" />
+     <Compile Include="Assets\Scripts\Scriptableobjects\AmmoData.cs" />
      <Compile Include="Assets\Scripts\Util\Dummy.cs" />
-     <Compile Include="Assets\Scripts\Interface\ICharacter.cs" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />

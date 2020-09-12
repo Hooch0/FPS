@@ -9,8 +9,11 @@ public interface ICharacter
     float MaxVerticalLook { get; }
     float MinVerticalLook { get; }
 
-    Transform GetArmsHolder();
-    Inventory GetInventory();
+    Inventory InventorySystem { get; }
+
+    ArmsInfo ArmsInformation { get; }
+
+    
     Quaternion GetRotation();
     Vector3 GetPosition();
 

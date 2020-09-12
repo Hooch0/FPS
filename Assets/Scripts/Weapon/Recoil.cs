@@ -9,8 +9,8 @@ public class Recoil
     public RecoilState State;
 
     public float RecoilSpeed;
-    public float DelayBeforeRecovery;
-    public float RecoveryTime;
+    public float DelayBeforeRecovery = 0.125f;
+    public float RecoveryTime = 0.125f;
     public float DepthAmount;
 
     public RecoilPattern Pattern;
@@ -61,6 +61,7 @@ public class Recoil
     public void ResetRecoilTarget()
     {
         _character = null;
+        ResetToIdle();
     }
 
     public void Update(float deltaTime)
@@ -92,7 +93,7 @@ public class Recoil
             _endEuler.x = pX;
         }
 
-        if (_applyRecoilTimer.IsFinished == true && _firingFinished == true)
+        if (_applyRecoilTimer.IsFinished == true)
         {
             _appliedEuler = _character.GetRotation().eulerAngles;
 
@@ -204,7 +205,7 @@ public class Recoil
 
     }
 
-    private void ResetToIdle()
+    public void ResetToIdle()
     {
          //Finished recovering
          //Reset all timers

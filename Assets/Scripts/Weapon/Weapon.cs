@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*TODO
+    -Reload and drop causes error. weapon does not know it was dropped and timers are not reset
+    -Switching weapons. Weapon does not know it was switched, kickback is stuck
+
+*/
+
 public class Weapon : MonoBehaviour, IInteractable
 {
     public const int RAY_MAX_RANGE = 50000;
-
     public Action ShotCallback { get; set; }
     public Action FinishedShootingCallback { get; set; }
     public Action ReloadCallback { get; set; }
@@ -13,7 +18,7 @@ public class Weapon : MonoBehaviour, IInteractable
     public bool IsShooting { get; private set; }
 
     public bool CanShoot { get { return IsReloading == false && CurrentAmmo > 0 ; } }
-    public bool CanReload { get { return _character.GetInventory().Ammo.GetAmmo(Data.AmmoType).CurrentReserveAmmo > 0; } }
+    public bool CanReload { get { return _character.InventorySystem.Ammo.GetAmmo(Data.AmmoType).CurrentReserveAmmo > 0; } }
 
     public int CurrentAmmo;
 
@@ -22,7 +27,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public GameObject InteractableGO;
     public GameObject GraphicsLayer;
-    public BoxCollider WeaponCollider;
+    public Collider[] WeaponColliders;
     public Rigidbody WeaponRigidbody;
 
     private ICharacter _character;
@@ -31,6 +36,7 @@ public class Weapon : MonoBehaviour, IInteractable
     private Timer _reloadDelay;
 
     private Timer _kickTimer;
+    private Timer _recoilResetDelay;
 
     private float _kickZ;
     private enum KickBackState { Idle, Kickback, Reset}
@@ -38,9 +44,16 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private void Awake()
     {
-        _shootDelay = new Timer(Data.RPMToInterval, () => { IsShooting = false; _shootDelay.Stop(); } );
+        float shotDelay = Data.RPMToInterval;
+        if (Data.RPMToInterval == -1)
+        {
+            shotDelay = 0;
+        }
+
+        _shootDelay = new Timer(shotDelay, () => { IsShooting = false; _shootDelay.Stop(); _recoilResetDelay.Start(); } );
         _reloadDelay = new Timer(Data.ReloadTime, () => {  ReloadWeapon(); _reloadDelay.Stop(); } );
         _kickTimer = new Timer(Data.KickTime, null);
+        _recoilResetDelay = new Timer(Data.RecoilRetentionTime, () => { _recoilResetDelay.Stop(); ShootFinished(); } );
         WeaponRecoil.Initialize(this);
 
     }
@@ -58,7 +71,7 @@ public class Weapon : MonoBehaviour, IInteractable
     public string GetUIMessage(ICharacter character)
     {
         //return Localization.EquipWeapon(name);
-        return character.GetInventory().HasEmptySlot == true ? "Press [F] to equip " + Data.ReferenceName : "Press [F] to swap " + character.GetInventory().CurrentWeapon.Data.ReferenceName + " for " + name;
+        return character.InventorySystem.HasEmptySlot == true ? "Press [F] to equip " + Data.ReferenceName : "Press [F] to swap " + character.InventorySystem.CurrentWeapon.Data.ReferenceName + " for " + name;
     }
 
     public bool CanInteract(ICharacter character)
@@ -71,16 +84,19 @@ public class Weapon : MonoBehaviour, IInteractable
         _character = character;
 
 
-        _character.GetInventory().EquipWeapon(this);
+        _character.InventorySystem.EquipWeapon(this);
 
-        ChangeGraphicsLayerMask(8);
+        ChangeGraphicsLayerMask(0x8);
         
-        transform.parent = _character.GetArmsHolder().transform;
+        transform.parent = _character.ArmsInformation.ArmsHolder.transform;
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.identity;
 
 
-        WeaponCollider.enabled = false;
+        foreach(Collider collider in WeaponColliders)
+        {
+            collider.enabled = false;
+        }
         WeaponRigidbody.collisionDetectionMode = CollisionDetectionMode.Discrete;
         WeaponRigidbody.isKinematic = true;
         WeaponRigidbody.useGravity = false;
@@ -93,17 +109,27 @@ public class Weapon : MonoBehaviour, IInteractable
     public void Drop()
     {
 
-        ChangeGraphicsLayerMask(0);
+        ChangeGraphicsLayerMask(0x1);
         transform.parent = null;
 
         InteractableGO.layer = 0xA;
+        ResetKickback();
 
-        WeaponCollider.enabled = true;
+        foreach(Collider collider in WeaponColliders)
+        {
+            collider.enabled = true;
+        }
         WeaponRigidbody.isKinematic = false;
         WeaponRigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
         WeaponRigidbody.useGravity = true;
-        _character = null;
+       
+       
         WeaponRecoil.ResetRecoilTarget();
+        _reloadDelay.Stop();
+        IsReloading = false;
+
+        _character = null;
+
 
     }
 
@@ -115,6 +141,7 @@ public class Weapon : MonoBehaviour, IInteractable
             {
                 ShotCallback?.Invoke();
             }
+            _recoilResetDelay.Stop();
             CurrentAmmo -= 1;
             HitScan();
             IsShooting = true;
@@ -124,7 +151,6 @@ public class Weapon : MonoBehaviour, IInteractable
         }
         else if (CanShoot == false && CanReload == true)
         {
-            
             Reload();
         }
     }
@@ -140,6 +166,18 @@ public class Weapon : MonoBehaviour, IInteractable
         IsReloading = true;
         _reloadDelay.Start();
     }
+    
+    public void OnWeaponActive()
+    {
+        ResetKickback();
+    }
+
+    public void OnWeaponInactive()
+    {
+        WeaponRecoil.ResetToIdle();
+        _reloadDelay.Stop();
+        IsReloading = false;
+    }
 
     private void KickbackUpdate()
     {
@@ -148,7 +186,7 @@ public class Weapon : MonoBehaviour, IInteractable
             return;
         }
 
-        Transform arms = _character.GetArmsHolder();
+        Transform arms = _character.ArmsInformation.ArmsHolder;
 
         if (_kickbackState == KickBackState.Kickback)
         {
@@ -173,6 +211,13 @@ public class Weapon : MonoBehaviour, IInteractable
 
     }
 
+    private void ResetKickback()
+    {
+        _character.ArmsInformation.ArmsHolder.localPosition = new Vector3(0,0,0);
+        _kickTimer.Stop();
+        _kickbackState = KickBackState.Idle;
+    }
+
     private void ReloadWeapon()
     {
 
@@ -181,7 +226,7 @@ public class Weapon : MonoBehaviour, IInteractable
             //Play animation
             int needed =  Data.AmmoSize - CurrentAmmo;
 
-            ReserveAmmo ammo = _character.GetInventory().Ammo.GetAmmo(Data.AmmoType);
+            ReserveAmmo ammo = _character.InventorySystem.Ammo.GetAmmo(Data.AmmoType);
 
             if (ammo.CurrentReserveAmmo < needed)
             {
@@ -203,7 +248,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
         //we could do raycast all and filter out the current user.
         //or we could just use raycast for now and change later if needed.
-        if (Physics.Raycast(ray, out hit, RAY_MAX_RANGE))
+        if (Physics.Raycast(ray, out hit, RAY_MAX_RANGE,0x1,QueryTriggerInteraction.Ignore))
         {
             //Bullet holes. nuff said
             BulletHoleManager.Instance.PlaceBulletHole(hit.transform.parent, hit.point + hit.normal * 0.01f, Quaternion.LookRotation( -hit.normal));
@@ -238,5 +283,6 @@ public class Weapon : MonoBehaviour, IInteractable
             }
         }
     }
+
 
 }
