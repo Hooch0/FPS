@@ -83,9 +83,6 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         _character = character;
 
-
-        _character.InventorySystem.EquipWeapon(this);
-
         ChangeGraphicsLayerMask(0x8);
         
         transform.parent = _character.ArmsInformation.ArmsHolder.transform;
@@ -140,6 +137,10 @@ public class Weapon : MonoBehaviour, IInteractable
             if (_character.IsAimingDownSight == true)
             {
                 ShotCallback?.Invoke();
+            }
+            else
+            {
+                WeaponRecoil.ResetToIdle();
             }
             _recoilResetDelay.Stop();
             CurrentAmmo -= 1;
@@ -283,6 +284,4 @@ public class Weapon : MonoBehaviour, IInteractable
             }
         }
     }
-
-
 }

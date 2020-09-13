@@ -82,10 +82,10 @@ public class PlayerController : MonoBehaviour, ICharacter
         
         _yawEuler = Model.localRotation.eulerAngles;
         _pitchEuler = CameraContainer.localRotation.eulerAngles;
-
+        _arms.Initialize();
+        _inventory.WeaponChanged += OnWeaponChanged;
         _inventory.Initialize(this);
         _inventory.Ammo.SetStartingAmmo(StartingAmmo);
-        _inventory.WeaponChanged += OnWeaponChanged;
         _aimTransitionTimer = new Timer(AimTransitionTime, null);
     }
 
@@ -279,7 +279,11 @@ public class PlayerController : MonoBehaviour, ICharacter
                 PlayerInteractable?.Invoke(interactable.GetUIMessage(this));
                 if (Input.GetKeyDown(KeyCode.F))
                 {
+                    
                     interactable.Interact(this);
+
+                    InventorySystem.EquipWeapon(interactable as Weapon);
+
                 }
             }
             else

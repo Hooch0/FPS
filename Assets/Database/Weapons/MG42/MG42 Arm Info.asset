@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: MG42 Arm Info
   m_EditorClassIdentifier: 
   LeftArm:
-    UpperArmPosition: {x: 0, y: 0, z: 0}
-    UpperArmRotation: {x: 0, y: 0, z: 0, w: 0}
-    ForearmPosition: {x: 0, y: 0, z: 0}
-    ForearmRotation: {x: 0, y: 0, z: 0, w: 0}
-    HandPosition: {x: 0, y: 0, z: 0}
-    HandRotation: {x: 0, y: 0, z: 0, w: 0}
+    UpperArmPosition: {x: -0.17300099, y: -0.11499997, z: -0.00799796}
+    UpperArmRotation: {x: 0.22127603, y: 0.14437768, z: 0.033144012, w: 0.96389496}
+    ForearmPosition: {x: -0.0622, y: -0.1315, z: 0.2677}
+    ForearmRotation: {x: -0.06904693, y: 0.23778611, z: 0.008328743, w: 0.9688245}
+    HandPosition: {x: 0.006, y: -0.068, z: 0.418}
+    HandRotation: {x: 0, y: 0, z: 0, w: 1}
   RightArm:
-    UpperArmPosition: {x: 0, y: 0, z: 0}
-    UpperArmRotation: {x: 0, y: 0, z: 0, w: 0}
-    ForearmPosition: {x: 0, y: 0, z: 0}
-    ForearmRotation: {x: 0, y: 0, z: 0, w: 0}
-    HandPosition: {x: 0, y: 0, z: 0}
-    HandRotation: {x: 0, y: 0, z: 0, w: 0}
+    UpperArmPosition: {x: 0.22100288, y: -0.057000004, z: -0.3090002}
+    UpperArmRotation: {x: 0.29404113, y: -0.014528422, z: -0.00447005, w: 0.9556719}
+    ForearmPosition: {x: 0.1175, y: -0.1294, z: -0.0842}
+    ForearmRotation: {x: 0.0024876348, y: -0.31462884, z: -0.0075047724, w: 0.9491819}
+    HandPosition: {x: 0.01, y: -0.1134, z: 0.1099}
+    HandRotation: {x: 0, y: 0, z: 0, w: 1}
