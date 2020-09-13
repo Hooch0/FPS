@@ -15,8 +15,12 @@ MonoBehaviour:
   ReferenceName: mg42
   Damage: 24
   HipSpread: 4
-  ReloadTime: 0
+  RecoilRetentionTime: 0.5
+  Kick: 0.05
+  KickTime: 0.05
+  ReloadTime: 1
   RoundsPerMinute: 1200
   WeaponFireType: 0
   AmmoSize: 100
   AmmoType: lmg
+  ArmData: {fileID: 11400000, guid: 7089abb17f65cc54f85341a2ecc87ae4, type: 2}

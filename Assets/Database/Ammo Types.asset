@@ -16,7 +16,7 @@ MonoBehaviour:
   - ReferenceType: smg
     MaxAmmo: 240
   - ReferenceType: lmg
-    MaxAmmo: 140
+    MaxAmmo: 300
   - ReferenceType: rifle
     MaxAmmo: 80
   - ReferenceType: pistol

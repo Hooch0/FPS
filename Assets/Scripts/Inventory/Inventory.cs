@@ -24,7 +24,23 @@ public class Inventory
     public void Initialize(PlayerController player)
     {
         _player = player;
+
         Ammo.Initialize();
+
+        if (HasWeapon == true)
+        {
+            if (Primary != null)
+            {
+                Primary.Interact(_player);
+            }
+            if (Secondary != null)
+            {
+                Secondary.Interact(player);
+            }
+
+            SetActiveWeapon();
+        }
+
     }
 
     //Handles equiping to either an empty slot or the current weapon slot
@@ -170,7 +186,7 @@ public class Inventory
         }
 
         old?.OnWeaponInactive();
-        CurrentWeapon.OnWeaponActive();
+        CurrentWeapon?.OnWeaponActive();
         WeaponChanged?.Invoke();
     }
 
