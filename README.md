@@ -1,6 +1,3 @@
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/FPlXbJZoESs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
 # FPS Prototype
 A FPS project with the goal of a easy to use recoil system with a bullet pattern editor.
 
