@@ -10,3 +10,5 @@ The recoil pattern currently is added to each weapon individually but will later
 # Recoil Editor
 --Note: Not finished yet--
 The recoil editor allows the creation of recoil patterns with a easy to use and visual graph. Each node can be selected an assigned to a group to be exported into a predefined pattern for future use. Nodes can be moved around, deleted or unassigned with the current recoil path.
+
+![Alt Text](https://media.giphy.com/media/FNttWXT6R40bJFN54H/giphy.gif)
