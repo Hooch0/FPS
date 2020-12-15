@@ -13,6 +13,7 @@ The recoil editor allows the creation of recoil patterns with a easy to use and 
 
 # Demos
 Demos showing recoil system in action.
+
 NOTE: All Weapons shown are not my own nor do I claim to own them. There is a credits file in the Assets folder that contains the owner of the weapons and the license type.
 
 ![MG42](https://media.giphy.com/media/FNttWXT6R40bJFN54H/giphy.gif)
