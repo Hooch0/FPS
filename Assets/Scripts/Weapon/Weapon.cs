@@ -2,11 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/*TODO
-    -Reload and drop causes error. weapon does not know it was dropped and timers are not reset
-    -Switching weapons. Weapon does not know it was switched, kickback is stuck
 
-*/
 
 public class Weapon : MonoBehaviour, IInteractable
 {
