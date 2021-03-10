@@ -2,7 +2,7 @@
 A FPS project with the goal of a easy to use recoil system with a bullet pattern editor.
 
 # Recoil System
-The recoil system is similar to Rainbow Six: Siege's current recoil system. This system major benefit is not constraining the user to a max recoil amount but instead using the pre defined mouse looking constraints as the max the recoil can reach.
+This system is designed with competive FPS in mind. This system major benefit is not constraining the user to a max recoil amount but instead using the pre defined mouse looking constraints as the max the recoil can reach.
 
 # Recoil Pattern
 The recoil pattern currently is added to each weapon individually but will later support breaking up patters into scriptable object assets for easy switching between weapons and maintaining a sense of familiarity between weapons recoil patterns.
