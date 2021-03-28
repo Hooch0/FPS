@@ -18,4 +18,4 @@ NOTE: All Weapons shown are not my own nor do I claim to own them. There is a cr
 
 ![MG42](https://media.giphy.com/media/FNttWXT6R40bJFN54H/giphy.gif)
 ![MP40](https://media.giphy.com/media/c6bkN2vMQ2YujPDPRM/giphy.gif)
-![M1GARAND](https://media.giphy.com/media/4V7Yuv7pzGfCJtHFaG/giphy.gif)
+
