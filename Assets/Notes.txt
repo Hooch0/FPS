@@ -1,0 +1,8 @@
+AI Notes:
+
+	-Agents are given default orders individually (e.g. patrol, hold, move to)
+	-Agents detect enemy individually, once detected delay based off of distance before 
+			squad is notified of enemy.
+	-Agents can lose target in which case they begin to SEARCH (squad order)
+	-Agents can pursue a fleeing target with a max range from their target zone.
+	

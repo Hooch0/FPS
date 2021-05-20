@@ -3,7 +3,12 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - LeftArm
+  - RightArm
+  - UpperArm
+  - Forearm
+  - Hand
   layers:
   - Default
   - TransparentFX
@@ -17,7 +22,7 @@ TagManager:
   - Character
   - Interactable
   - Arms
-  - 
+  - BlockBarrier
   - 
   - 
   - 

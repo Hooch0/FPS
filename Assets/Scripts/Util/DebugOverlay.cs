@@ -5,6 +5,7 @@ using UnityEngine;
 public class DebugOverlay : MonoBehaviour
 {
     public static DebugOverlay Instance { get; private set; }
+    public const bool IS_DEBUG = false;
 
     private Dictionary<string, VectorLabel> _customVectorLabel = new Dictionary<string, VectorLabel>();
     private Dictionary<string, BoolLabel> _customBoolLabel = new Dictionary<string, BoolLabel>();
@@ -26,6 +27,8 @@ public class DebugOverlay : MonoBehaviour
 
     private void Awake()
     {
+        if (IS_DEBUG == false) return;
+
         _distanceTimer = new Timer(1, () => 
         { 
             _lastPo = PlayerController.Instance.transform.position;
@@ -41,9 +44,10 @@ public class DebugOverlay : MonoBehaviour
 
     private void Update()
     {
+        if (IS_DEBUG == false) return;
+
         if (Input.GetKeyDown(KeyCode.BackQuote))
         {
-            Debug.Log("here");
             _display = !_display;
         }
 
@@ -54,6 +58,8 @@ public class DebugOverlay : MonoBehaviour
 
     private void OnEnable()
     {
+        if (IS_DEBUG == false) return;
+
         if (Instance != null)
         {
             Destroy(gameObject);
@@ -102,12 +108,12 @@ public class DebugOverlay : MonoBehaviour
 
     private void OnGUI()
     {
-        if (_display == false)
+        if (_display == false || IS_DEBUG == false)
         {
             return;
         }
 
-        GUILayout.BeginVertical(GUI.skin.box,GUILayout.Width(250));//(new Rect(0,0,150,500));
+        GUILayout.BeginVertical(GUI.skin.box,GUILayout.Width(250));
 
         GUILayout.Label("----------DEBUG----------");
         GUI.color = Color.green;

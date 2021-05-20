@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//TODO: Create shooting range :D 
 
 public class PlayerController : MonoBehaviour, ICharacter
 {
@@ -187,11 +188,9 @@ public class PlayerController : MonoBehaviour, ICharacter
 
     private void PlayerRotation()
     {
+        float x = Util.AddAngleClamp(Input.GetAxis("Mouse Y") * TurnSensitivity.x ,_pitchEuler.x,_minVerticalLook, _maxVerticalLook);
 
-
-        float x = Util.AddAngleClamp(Input.GetAxis("Mouse Y") * TurnSensitivity.x * Time.deltaTime,_pitchEuler.x,_minVerticalLook, _maxVerticalLook);
-
-        float y = Input.GetAxis("Mouse X") * TurnSensitivity.y * Time.deltaTime;
+        float y = Input.GetAxis("Mouse X") * TurnSensitivity.y;
 
         if (x == 0 && y == 0)
         {
@@ -279,11 +278,7 @@ public class PlayerController : MonoBehaviour, ICharacter
                 PlayerInteractable?.Invoke(interactable.GetUIMessage(this));
                 if (Input.GetKeyDown(KeyCode.F))
                 {
-                    
                     interactable.Interact(this);
-
-                    InventorySystem.EquipWeapon(interactable as Weapon);
-
                 }
             }
             else

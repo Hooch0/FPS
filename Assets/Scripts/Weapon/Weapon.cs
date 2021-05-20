@@ -16,6 +16,7 @@ public class Weapon : MonoBehaviour, IInteractable
     public bool CanShoot { get { return IsReloading == false && CurrentAmmo > 0 ; } }
     public bool CanReload { get { return _character.InventorySystem.Ammo.GetAmmo(Data.AmmoType).CurrentReserveAmmo > 0; } }
 
+    public LayerMask IgnoreHitScanLayer;
     public int CurrentAmmo;
 
     public WeaponDataSO Data;
@@ -96,6 +97,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
         InteractableGO.layer = 0x0;
         WeaponRecoil.SetRecoilTarget(_character);
+        character.InventorySystem.EquipWeapon(this);
 
     }
 
@@ -245,7 +247,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
         //we could do raycast all and filter out the current user.
         //or we could just use raycast for now and change later if needed.
-        if (Physics.Raycast(ray, out hit, RAY_MAX_RANGE,0x1,QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(ray, out hit, RAY_MAX_RANGE,~IgnoreHitScanLayer,QueryTriggerInteraction.Ignore))
         {
             //Bullet holes. nuff said
             BulletHoleManager.Instance.PlaceBulletHole(hit.transform.parent, hit.point + hit.normal * 0.01f, Quaternion.LookRotation( -hit.normal));

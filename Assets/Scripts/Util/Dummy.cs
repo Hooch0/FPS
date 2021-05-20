@@ -13,9 +13,11 @@ public class Dummy : MonoBehaviour, IDamageable
     private Color _startColor;
     private Renderer _renderer;
 
+    //Delay before we start regenerating health
     private Timer _beforeRegenTimer;
     private float _beforeRegenGoal = 5;
 
+    //Time it takes to regenerate health
     private Timer _regenTimer;
     private float _regenGoal = 5;
 
@@ -30,7 +32,9 @@ public class Dummy : MonoBehaviour, IDamageable
         
         _beforeRegenTimer = new Timer(_beforeRegenGoal, () => 
         { 
-            _healthBeforeRegen = Health; _regen = true; _regenTimer.Start(); 
+            _healthBeforeRegen = Health; 
+            _regen = true; 
+            _regenTimer.Start(); 
         });
 
 
@@ -50,7 +54,7 @@ public class Dummy : MonoBehaviour, IDamageable
             }
         }
 
-        _renderer.material.color = Color.Lerp(Color.red,_startColor, Health/MaxHealth);
+        _renderer.material.color = Color.Lerp(Color.red,_startColor, Health / MaxHealth);
 
     }
 
@@ -61,9 +65,8 @@ public class Dummy : MonoBehaviour, IDamageable
         _regen = false;
 
         //Restart the regen timer
-        _beforeRegenTimer.Stop();
         _regenTimer.Stop();
-        _beforeRegenTimer.Start();
+        _beforeRegenTimer.Restart();
 
 
         Damaged?.Invoke(amount);

@@ -376,6 +376,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7303561c65563146ba644dda93ffac8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IgnoreHitScanLayer:
+    serializedVersion: 2
+    m_Bits: 4134
   CurrentAmmo: 100
   Data: {fileID: 11400000, guid: b27703ffe3ef7524aa623e834e722c9b, type: 2}
   WeaponRecoil:
@@ -384,11 +387,8 @@ MonoBehaviour:
     DelayBeforeRecovery: 0.125
     RecoveryTime: 0.125
     DepthAmount: 0
-    Pattern:
-      Patterns:
-      - XAmount: 80
-        YAmount: 0
-        BulletsTillFinish: 1
+    RecoilPatternSystem:
+      Pattern: {fileID: 11400000, guid: 37391c5272c36db4597144ee1915319f, type: 2}
   InteractableGO: {fileID: 4379999030626398679}
   GraphicsLayer: {fileID: 6900338498621410840}
   WeaponColliders:

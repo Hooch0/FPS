@@ -8,7 +8,7 @@ public static class Util
     //Adds a given value to an angle while clamping within a min max range.
     public static float AddAngleClamp(float value, float angle, float min, float max)
     {
-        float x = value;
+        float val = value;
 
 
         float newAngle = angle - 180;
@@ -20,17 +20,17 @@ public static class Util
         {
             newAngle += 360;
         }
-
-        if (x > 0 && newAngle > nMin || x < 0 && newAngle < nMax)
+        
+        if (val > 0 && newAngle > nMin || val < 0 && newAngle < nMax)
         {
-            x = value;
+            val = value;
         }
         else
         {
-            x = 0;
+            val = 0;
         }
 
-        return x;
+        return val;
     }
 
     //Compares the difference between 2 angles
