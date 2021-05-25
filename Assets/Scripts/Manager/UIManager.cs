@@ -12,10 +12,14 @@ public class UIManager : MonoBehaviour
 
     public GameObject InteractionPanel;
 
+    public GameObject UIKeybinds;
+
     public TextMeshProUGUI InteractionText;
 
     public TextMeshProUGUI CurrentAmmo;
     public TextMeshProUGUI ReserveAmmo;
+    private bool _enabled = false;
+
 
     private void OnEnable()
     {
@@ -38,6 +42,11 @@ public class UIManager : MonoBehaviour
     private void Update()
     {
         UpdateWeaponUI();
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ToggleKebinds();
+        }
     }
 
     private void UpdateWeaponUI()
@@ -54,6 +63,12 @@ public class UIManager : MonoBehaviour
             CurrentAmmo.text = "--";
             ReserveAmmo.text = "--";
         }
+    }
+
+    private void ToggleKebinds()
+    {
+        _enabled = !_enabled;
+        UIKeybinds.SetActive(_enabled);
     }
 
 

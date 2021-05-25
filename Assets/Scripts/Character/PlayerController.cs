@@ -79,7 +79,7 @@ public class PlayerController : MonoBehaviour, ICharacter
 
     private void Awake()
     {
-        //Cursor.visible = false;
+        Cursor.visible = false;
         
         _yawEuler = Model.localRotation.eulerAngles;
         _pitchEuler = CameraContainer.localRotation.eulerAngles;
